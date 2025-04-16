@@ -1,3 +1,14 @@
+@php
+    $slug = $token->requestType->slug;
+    $formRoute = match ($slug) {
+        'maintenance' => '/rform',
+        'new-device' => '/newdevice',
+        'other' => '/rform', 
+    };
+
+    $formUrl = config('app.frontend_url') . $formRoute . '?token=' . $token->token;
+@endphp
+
 @component('mail::message')
 # School Request Form Access
 
@@ -5,7 +16,7 @@ You requested a **{{ $token->requestType->name }}** for **{{ $token->school->nam
 
 Click below to access the form (expires in **30 minutes**):  
 
-@component('mail::button', ['url' => config('app.frontend_url') . 'rform?token=' . $token->token])
+@component('mail::button', ['url' => $formUrl])
 Access Form
 @endcomponent
 

@@ -199,4 +199,33 @@ class DeviceController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+    public function searchDevice(Request $request, $schoolId)
+    {
+        /**
+         * Search for devices by name_tag, serial_number, category
+         * and that belong to the school with ID = $schoolId
+         */
+    
+        $query = Device::where('current_school_id', $schoolId);
+    
+        if ($request->filled('name_tag')) {
+            $query->where('name_tag', 'like', '%' . $request->name_tag . '%');
+        }
+    
+        if ($request->filled('serial_number')) {
+            $query->where('serial_number', 'like', '%' . $request->serial_number . '%');
+        }
+    
+        if ($request->filled('category')) {
+            $query->where('category', 'like', '%' . $request->category . '%');
+        }
+    
+        $devices = $query->get();
+    
+        return response()->json([
+            'success' => true,
+            'data' => $devices
+        ]);
+    }
+    
 }

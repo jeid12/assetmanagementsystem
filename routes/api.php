@@ -24,3 +24,5 @@ Route::get('schools/{schoolId}/devices', [DeviceController::class, 'getDevicesBy
 Route::post('/devices', [DeviceController::class, 'store']);
 Route::put('/devices/{device}', [DeviceController::class, 'update']);
 Route::delete('/devices/{device}', [DeviceController::class, 'destroy']);
+//search devices
+Route::get('/schools/{id}/devices', [DeviceController::class, 'searchDevice']);
