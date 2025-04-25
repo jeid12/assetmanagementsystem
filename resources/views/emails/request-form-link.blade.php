@@ -1,7 +1,7 @@
 @php
     $slug = $token->requestType->slug;
     $formRoute = match ($slug) {
-        'maintenance' => '/rform',
+        'maintenance' => '/apply-maintenance',
         'new-device' => '/newdevice',
         'other' => '/rform', 
     };

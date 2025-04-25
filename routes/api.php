@@ -26,3 +26,5 @@ Route::put('/devices/{device}', [DeviceController::class, 'update']);
 Route::delete('/devices/{device}', [DeviceController::class, 'destroy']);
 //search devices
 Route::get('/schools/{id}/devices', [DeviceController::class, 'searchDevice']);
+//assign name tag
+Route::post('/devices/{id}/assign-name-tag', [DeviceController::class, 'assignNameTag']);

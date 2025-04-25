@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Device;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use App\Services\DeviceNameTagService;
 
 class DeviceController extends Controller
 {
@@ -227,5 +228,60 @@ class DeviceController extends Controller
             'data' => $devices
         ]);
     }
+
+    /**
+ * Assign a name tag to a device based on its category and school code.
+ *
+ * @param int $id
+ * @return \Illuminate\Http\JsonResponse
+ */
+    
+ public function assignNameTag($id, DeviceNameTagService $nameTagService)
+{
+    try {
+        $device = Device::with('school')->findOrFail($id);
+
+        // Check if school and category exist
+        if (!$device->school || !$device->category) {
+            return response()->json([
+                'success' => false,
+                'message' => 'School or category information is missing'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Only assign if name_tag is null or starts with 'DEFAULT'
+        if (empty($device->name_tag) || str_starts_with($device->name_tag, 'DEFAULT')) {
+            $nameTag = $nameTagService->generate($device->category, $device->current_school_id);
+
+            $device->name_tag = $nameTag;
+            $device->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Name tag assigned successfully',
+                'data' => $device
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Device already has a valid name tag',
+            'data' => $device
+        ]);
+
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Device not found'
+        ], Response::HTTP_NOT_FOUND);
+    } catch (\Exception $e) {
+        Log::error('Error assigning name tag: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to assign name tag'
+        ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+}
+
     
 }

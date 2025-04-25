@@ -7,7 +7,7 @@ class School extends Model
 {
     protected $fillable = [
         'name', 'province', 'district', 'sector', 
-        'phone', 'email', 'leaderName','school-code'
+        'phone', 'email', 'leaderName','code'
     ];
     public function requests()
 {
