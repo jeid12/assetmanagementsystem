@@ -6,6 +6,7 @@ use App\Http\Controllers\API\SchoolController;
 use App\Http\Controllers\API\RequestController;
 use App\Http\Controllers\API\DeviceController;
 use App\Http\Controllers\API\FormController;
+use App\Http\Controllers\API\RoleController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -28,3 +29,7 @@ Route::delete('/devices/{device}', [DeviceController::class, 'destroy']);
 Route::get('/schools/{id}/devices', [DeviceController::class, 'searchDevice']);
 //assign name tag
 Route::post('/devices/{id}/assign-name-tag', [DeviceController::class, 'assignNameTag']);
+
+
+//Roles and Permissions
+Route::get('/roles', [RoleController::class, 'index']);
