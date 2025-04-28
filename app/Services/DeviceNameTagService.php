@@ -14,11 +14,14 @@ class DeviceNameTagService
     public function generate(string $category, int $schoolId): string
     {
         $school = School::findOrFail($schoolId);
+        $device= Device::where('category', $category)
+        ->where('current_school_id', $schoolId)
+        ->first();
 
         $count = Device::where('category', $category)
             ->where('current_school_id', $schoolId)
             ->count() + 1;
 
-        return 'RTB/' . strtoupper($category) . '/' . strtoupper($school->code  ) . '/' . $count;
+        return 'RTB/' . strtoupper($device ->slug) . '/' . strtoupper($school->code  ) . '/' . $count;
     }
 }

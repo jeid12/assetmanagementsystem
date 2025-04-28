@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name_tag')->unique();
             $table->string('category');
+            $table->string('slug');
             $table->string('model');
             $table->string('serial_number')->unique();
             $table->string('brand');

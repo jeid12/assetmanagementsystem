@@ -12,6 +12,7 @@ class Device extends Model
     protected $fillable = [
         'name_tag',
         'category',
+        'slug',
         'model',
         'serial_number',
         'brand',

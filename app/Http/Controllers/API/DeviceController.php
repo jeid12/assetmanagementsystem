@@ -51,6 +51,19 @@ class DeviceController extends Controller
                 'purchase_cost' => 'nullable|numeric|min:0',
                 'notes' => 'nullable|string',
             ]);
+            // Auto-generate name_tag if not provided
+if (empty($validated['name_tag'])) {
+    $prefix = 'DEFAULT';
+    $i = 1;
+
+    do {
+        $generatedNameTag = $prefix . $i;
+        $exists = Device::where('name_tag', $generatedNameTag)->exists();
+        $i++;
+    } while ($exists);
+
+    $validated['name_tag'] = $generatedNameTag;
+}
 
             $device = Device::create($validated);
 
@@ -133,7 +146,7 @@ class DeviceController extends Controller
             $device = Device::findOrFail($id);
 
             $validated = $request->validate([
-                'name_tag' => 'nullable|unique:devices,name_tag,'.$id,
+                'name_tag' => 'nullable|unique:devices',
                 'category' => 'sometimes|string|max:255',
                 'model' => 'sometimes|string|max:255',
                 'serial_number' => 'sometimes|unique:devices,serial_number,'.$id,
@@ -146,6 +159,19 @@ class DeviceController extends Controller
                 'purchase_cost' => 'nullable|numeric|min:0',
                 'notes' => 'nullable|string',
             ]);
+            // Auto-generate name_tag if not provided
+if (empty($validated['name_tag'])) {
+    $prefix = 'DEFAULT';
+    $i = 1;
+
+    do {
+        $generatedNameTag = $prefix . $i;
+        $exists = Device::where('name_tag', $generatedNameTag)->exists();
+        $i++;
+    } while ($exists);
+
+    $validated['name_tag'] = $generatedNameTag;
+}
 
             $device->update($validated);
 
