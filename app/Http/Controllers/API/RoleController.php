@@ -77,11 +77,18 @@ class RoleController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'guard_name' => 'required|string|max:255',
+            
         ]);
 
         $role = Role::findOrFail($id);
-        $role->update($request->only('name', 'guard_name'));
+        $role->update([
+            'name' => $request->name,
+            
+        ]);
+        if ($request->has('permissions')) {
+            $role->syncPermissions($request->permissions);
+        }
+        
 
         return response()->json([
             'status' => true,
