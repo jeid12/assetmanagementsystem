@@ -18,11 +18,11 @@ Route::get('/schools', [SchoolController::class, 'index']);
 Route::get('/schools/{school}', [SchoolController::class, 'show']);
 
 Route::middleware(['auth:sanctum', 'can:access-school'])->group(function () {
-Route::post('/schools/{school}/request', [RequestController::class, 'initiateRequest']);
+    Route::post('/schools/{school}/request', [RequestController::class, 'initiateRequest']);
 });
 
 Route::middleware(['auth:sanctum', 'can:access-school'])->group(function () {
-Route::post('/submit-request', [FormController::class, 'submitRequest']);
+    Route::post('/submit-request', [FormController::class, 'submitRequest']);
 });
 
 // Devices
@@ -44,7 +44,8 @@ Route::delete('/devices/{device}', [DeviceController::class, 'destroy']);
 Route::get('/schools/{id}/devices', [DeviceController::class, 'searchDevice']);
 //assign name tag
 Route::middleware(['auth:sanctum', 'can:access-admin-rtb-staff'])->group(function () {
-Route::post('/devices/{id}/assign-name-tag', [DeviceController::class, 'assignNameTag']);
+    Route::post('/devices/{id}/assign-name-tag', [DeviceController::class, 'assignNameTag']);
+    Route::get('/users', [AuthController::class, 'index']);
 });
 
 //Roles and Permissions
@@ -52,7 +53,6 @@ Route::get('/roles', [RoleController::class, 'index']);
 Route::get('/roles/{id}', [RoleController::class, 'show']);
 Route::put('/roles/{id}', [RoleController::class, 'update']);
 Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
-
 
 //Route to  Authorize
 Route::post('/register', [AuthController::class, 'register']);
