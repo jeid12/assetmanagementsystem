@@ -4,6 +4,10 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
+
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -62,4 +66,61 @@ class AuthController extends Controller
     {
         //
     }
+
+    public function register(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users',
+        'password' => 'required|string|min:6',
+        'role' => 'required|in:School,Technician,RTB-Staff,Admin',
+    ]);
+
+    $user = User::create([
+        'name' => $validated['name'],
+        'email' => $validated['email'],
+       'password' => Hash::make($validated['password']),
+    ]);
+
+    // Ensure the role exists before assignment
+    $role = Role::where('name', $validated['role'])->first();
+
+    if (!$role) {
+        return response()->json(['message' => 'Invalid role'], 400);
+    }
+
+    $user->assignRole($role->name);
+
+    $token = $user->createToken('api_token')->plainTextToken;
+
+    return response()->json([
+        'token' => $token,
+        'user' => $user->load('roles'), // Include role info in response
+    ]);
+}
+public function login(Request $request)
+{
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|string',
+    ]);
+
+    $user = User::where('email', $credentials['email'])->first();
+
+    if (!$user || !Hash::check($credentials['password'], $user->password)) {
+        return response()->json([
+            'message' => 'Invalid credentials'
+        ], 401);
+    }
+
+    $token = $user->createToken('api_token')->plainTextToken;
+
+    return response()->json([
+        'message' => 'Login successful',
+        'token' => $token,
+        'user' => $user->load('roles'),
+    ]);
+}
+
+
 }

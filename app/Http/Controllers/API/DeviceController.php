@@ -40,6 +40,7 @@ class DeviceController extends Controller
             $validated = $request->validate([
                 'name_tag' => 'nullable|unique:devices',
                 'category' => 'required|string|max:255',
+                'slug' => 'required|string|max:255',
                 'model' => 'required|string|max:255',
                 'serial_number' => 'required|unique:devices|string|max:255',
                 'brand' => 'required|string|max:255',
@@ -51,20 +52,7 @@ class DeviceController extends Controller
                 'purchase_cost' => 'nullable|numeric|min:0',
                 'notes' => 'nullable|string',
             ]);
-            // Auto-generate name_tag if not provided
-if (empty($validated['name_tag'])) {
-    $prefix = 'DEFAULT';
-    $i = 1;
-
-    do {
-        $generatedNameTag = $prefix . $i;
-        $exists = Device::where('name_tag', $generatedNameTag)->exists();
-        $i++;
-    } while ($exists);
-
-    $validated['name_tag'] = $generatedNameTag;
-}
-
+          
             $device = Device::create($validated);
 
             return response()->json([
