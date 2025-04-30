@@ -71,7 +71,8 @@ class DeviceController extends Controller
             Log::error('Error creating device: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create device'
+                'message' => 'Failed to create device',
+                'error' => $e->getMessage()
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
@@ -136,6 +137,7 @@ class DeviceController extends Controller
             $validated = $request->validate([
                 'name_tag' => 'nullable|unique:devices',
                 'category' => 'sometimes|string|max:255',
+                'slug' => 'sometimes|string|max:255',
                 'model' => 'sometimes|string|max:255',
                 'serial_number' => 'sometimes|unique:devices,serial_number,'.$id,
                 'brand' => 'sometimes|string|max:255',
@@ -295,6 +297,22 @@ if (empty($validated['name_tag'])) {
             'message' => 'Failed to assign name tag'
         ], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
+}
+
+public function assignToSchool(Request $request, $deviceId)
+{
+    $request->validate([
+        'current_school_id' => 'required|exists:schools,id',
+    ]);
+
+    $device = Device::findOrFail($deviceId);
+    $device->current_school_id = $request->current_school_id;
+    $device->save();
+
+    return response()->json([
+        'message' => 'Device assigned to school successfully',
+        'device' => $device
+    ]);
 }
 
     

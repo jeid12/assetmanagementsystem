@@ -46,7 +46,11 @@ Route::get('/schools/{id}/devices', [DeviceController::class, 'searchDevice']);
 Route::middleware(['auth:sanctum', 'can:access-admin-rtb-staff'])->group(function () {
     Route::post('/devices/{id}/assign-name-tag', [DeviceController::class, 'assignNameTag']);
     Route::get('/users', [AuthController::class, 'index']);
+   
 });
+//assign device to school
+Route::post('/device/{id}/toschool', [DeviceController::class, 'assignToSchool']);
+
 
 //Roles and Permissions
 Route::get('/roles', [RoleController::class, 'index']);
