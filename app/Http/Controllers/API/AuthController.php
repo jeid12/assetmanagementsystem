@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 use App\Models\User;
 
@@ -115,6 +118,47 @@ public function login(Request $request)
         ], 401);
     }
 
+    // Generate 6-digit OTP
+    $otp = random_int(100000, 999999);
+
+    // Save to user with expiry
+    $user->otp_code = $otp;
+    $user->otp_expires_at = Carbon::now()->addMinutes(10);
+    $user->save();
+
+    // Send email
+    Mail::raw("Your OTP code is: $otp", function ($message) use ($user) {
+        $message->to($user->email)
+                ->subject('Your OTP Code');
+    });
+
+    return response()->json([
+        'message' => 'OTP sent to your email',
+        'user_id' => $user->id
+    ]);
+}
+public function verifyOtp(Request $request)
+{
+    $request->validate([
+        'user_id' => 'required|exists:users,id',
+        'otp_code' => 'required|digits:6'
+    ]);
+
+    $user = User::find($request->user_id);
+
+    if (
+        $user->otp_code !== $request->otp_code ||
+        $user->otp_expires_at->lt(now())
+    ) {
+        return response()->json(['message' => 'Invalid or expired OTP'], 401);
+    }
+
+    // Clear OTP fields
+    $user->otp_code = null;
+    $user->otp_expires_at = null;
+    $user->save();
+
+    // Issue token
     $token = $user->createToken('api_token')->plainTextToken;
 
     return response()->json([
@@ -123,6 +167,12 @@ public function login(Request $request)
         'user' => $user->load('roles'),
     ]);
 }
+// logout logic
+public function logout(Request $request)
+{
+    $request->user()->currentAccessToken()->delete();
 
+    return response()->json(['message' => 'Logged out successfully']);
 
+}
 }

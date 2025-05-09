@@ -18,13 +18,13 @@ Route::get('/user', function (Request $request) {
 Route::get('/schools', [SchoolController::class, 'index']);
 Route::get('/schools/{school}', [SchoolController::class, 'show']);
 
-Route::middleware(['auth:sanctum', 'can:access-school'])->group(function () {
-    Route::post('/schools/{school}/request', [RequestController::class, 'initiateRequest']);
-});
 
-Route::middleware(['auth:sanctum', 'can:access-school'])->group(function () {
+    Route::post('/schools/{school}/request', [RequestController::class, 'initiateRequest']);
+
+
+
     Route::post('/submit-request', [FormController::class, 'submitRequest']);
-});
+
 
 // Devices
 
@@ -61,9 +61,14 @@ Route::get('/roles/{id}', [RoleController::class, 'show']);
 Route::put('/roles/{id}', [RoleController::class, 'update']);
 Route::delete('/roles/{id}', [RoleController::class, 'destroy']);
 
-//Route to  Authorize
+// Register user
 Route::post('/register', [AuthController::class, 'register']);
+
+// Step 1: Login and send OTP
 Route::post('/login', [AuthController::class, 'login'])->name('login');
+
+// Step 2: Verify OTP and issue token
+Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verify.otp');
 
 //profile
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
