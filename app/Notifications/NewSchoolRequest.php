@@ -3,20 +3,23 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NewSchoolRequest extends Notification
+use Illuminate\Notifications\Messages\MailMessage;
+
+class NewSchoolRequest extends Notification 
 {
-    use Queueable;
+    
 
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    protected $school;
+    protected $requestType;
+    public function __construct($school, $requestType)
     {
-        //
+        $this->school = $school;
+        $this->requestType = $requestType;
     }
 
     /**
@@ -24,31 +27,38 @@ class NewSchoolRequest extends Notification
      *
      * @return array<int, string>
      */
-    public function via(object $notifiable): array
+    public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail', 'database']; // Both mail and database
     }
 
     /**
      * Get the mail representation of the notification.
      */
-    public function toMail(object $notifiable): MailMessage
+    public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject('New School Request: ' . $this->requestType->name)
+            ->greeting("Hello {$notifiable->name},")
+            ->line("A new {$this->requestType->name} request has been made by the school: {$this->school->name}.")
+            
+            ->line('Please review the request as soon as possible.');
     }
 
     /**
-     * Get the array representation of the notification.
+     * Get the array representation of the notification for database.
      *
      * @return array<string, mixed>
      */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            //
-        ];
-    }
+
+     public function toDatabase($notifiable)
+     {
+         return [
+             'message' => "New {$this->requestType->name} request from {$this->school->name}",
+             'school_id' => $this->school->id,
+             'request_type' => $this->requestType->name,
+         ];
+     }
+
+
 }
