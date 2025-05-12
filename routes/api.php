@@ -70,6 +70,9 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 // Step 2: Verify OTP and issue token
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp'])->name('verify.otp');
 
+// Step 3: Logout
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 //profile
 Route::middleware('auth:sanctum')->get('/me', function (Request $request) {
     return $request->user()->load('roles');

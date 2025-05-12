@@ -148,7 +148,7 @@ public function verifyOtp(Request $request)
 
     if (
         $user->otp_code !== $request->otp_code ||
-        $user->otp_expires_at->lt(now())
+        Carbon::parse($user->otp_expires_at)->lt(now())
     ) {
         return response()->json(['message' => 'Invalid or expired OTP'], 401);
     }
