@@ -7,27 +7,25 @@ use App\Services\DeviceNameTagService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\DeviceImport;
 
 class DeviceController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+ public function index(Request $request)
     {
-        try {
-            $devices = Device::all();
-            return response()->json([
-                'success' => true,
-                'data'    => $devices,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error fetching devices: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve devices',
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        $query = Device::query();
+
+        foreach ($request->all() as $key => $value) {
+            if (in_array($key, (new Device)->getFillable())) {
+                $query->where($key, 'like', "%$value%");
+            }
         }
+
+        return response()->json($query->paginate(20));
     }
 
     /**
@@ -341,6 +339,42 @@ class DeviceController extends Controller
             'success' => true,
             'data'    => $devices,
         ]);
+    }
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,csv,txt',
+        ]);
+
+        Excel::import(new DeviceImport, $request->file('file'));
+
+        return response()->json(['message' => 'Devices imported successfully']);
+    }
+    public function bulkUpdate(Request $request)
+    {
+        $request->validate([
+            'devices' => 'required|array',
+            'devices.*.id' => 'required|exists:devices,id',
+        ]);
+
+        foreach ($request->devices as $deviceData) {
+            $device = Device::find($deviceData['id']);
+            $device->update($deviceData);
+        }
+
+        return response()->json(['message' => 'Devices updated successfully']);
+    }
+    // Bulk delete
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:devices,id',
+        ]);
+
+        Device::destroy($request->ids);
+
+        return response()->json(['message' => 'Devices deleted successfully']);
     }
 
 }

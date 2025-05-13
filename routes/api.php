@@ -28,7 +28,7 @@ Route::get('/schools/{school}', [SchoolController::class, 'show']);
 
 // Devices
 
-Route::get('/devices', [DeviceController::class, 'index']);
+
 
 Route::get('/devices/{device}', [DeviceController::class, 'show']);
 
@@ -54,6 +54,14 @@ Route::get('/devices/count', [DeviceController::class, 'allDevices']);
 
 //device by category
 Route::get('/devices/category/{category}', [DeviceController::class, 'getDevicesByCategory']);
+
+Route::prefix('devices')->group(function () {
+    Route::get('/', [DeviceController::class, 'index']); // List with filters
+    
+    Route::post('/upload', [DeviceController::class, 'upload']); // Bulk upload
+    Route::put('/bulk-update', [DeviceController::class, 'bulkUpdate']); // Bulk edit
+    Route::delete('/bulk-delete', [DeviceController::class, 'bulkDelete']); // Bulk delete
+});
 
 //Roles and Permissions
 Route::get('/roles', [RoleController::class, 'index']);
