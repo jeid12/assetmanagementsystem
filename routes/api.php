@@ -14,6 +14,9 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+// get all users or fileters by role
+Route::get('/filtered-users ', [UserController::class, 'getAllUsers']);
+
 //schools
 Route::get('/schools', [SchoolController::class, 'index']);
 Route::get('/schools/{school}', [SchoolController::class, 'show']);

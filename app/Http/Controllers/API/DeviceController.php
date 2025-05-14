@@ -16,17 +16,22 @@ class DeviceController extends Controller
      * Display a listing of the resource.
      */
  public function index(Request $request)
-    {
-        $query = Device::query();
+{
+    $query = Device::query();
 
-        foreach ($request->all() as $key => $value) {
-            if (in_array($key, (new Device)->getFillable())) {
-                $query->where($key, 'like', "%$value%");
-            }
+    foreach ($request->all() as $key => $value) {
+        if (in_array($key, (new Device)->getFillable())) {
+            $values = explode(',', $value);
+            $query->where(function ($q) use ($key, $values) {
+                foreach ($values as $v) {
+                    $q->orWhere($key, 'like', "%$v%");
+                }
+            });
         }
-
-        return response()->json($query->paginate(20));
     }
+
+    return response()->json($query->paginate(10));
+}
 
     /**
      * Store a newly created resource in storage.

@@ -79,12 +79,16 @@ class AuthController extends Controller
         'email' => 'required|email|unique:users',
         'password' => 'required|string|min:6',
         'role' => 'required|in:School,Technician,RTB-Staff,Admin',
+        'phone' => 'nullable|string|max:15',
+        'gender' => 'nullable|string|in:Male,Female',
     ]);
 
     $user = User::create([
         'name' => $validated['name'],
         'email' => $validated['email'],
        'password' => Hash::make($validated['password']),
+        'phone' => $validated['phone'] ?? null,
+        'gender' => $validated['gender'] ?? null,
     ]);
 
     // Ensure the role exists before assignment
