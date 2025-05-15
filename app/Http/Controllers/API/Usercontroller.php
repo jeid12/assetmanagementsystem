@@ -74,7 +74,8 @@ public function getAllUsers(Request $request)
 }
     public function store(Request $request)
     {
-        //
+        //new user
+    
     }
 
     /**
