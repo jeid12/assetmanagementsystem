@@ -1,8 +1,5 @@
-# Use official PHP 8.2 image
-FROM php:8.2-fpm
-
-# Set working directory
-WORKDIR /var/www
+# Stage 1: Build PHP environment with Composer
+FROM php:8.2-fpm AS php
 
 # Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
@@ -17,11 +14,17 @@ RUN apt-get update && apt-get install -y \
     libjpeg-dev \
     libfreetype6-dev \
     libpq-dev \
+    nginx \
+    supervisor \
+    netcat \
     && docker-php-ext-configure zip \
     && docker-php-ext-install pdo pdo_pgsql mbstring zip exif pcntl bcmath gd
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /var/www
 
 # Copy Laravel files
 COPY . .
@@ -33,12 +36,18 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data /var/www \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# Copy and set permissions for startup script
+# Copy nginx config
+COPY ./docker/nginx/default.conf /etc/nginx/sites-available/default
+
+# Copy supervisor config
+COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copy startup script
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Expose port for PHP-FPM
-EXPOSE 9000
+# Expose HTTP port
+EXPOSE 80
 
-# Run Laravel migration and start PHP-FPM
-CMD ["/start.sh"]
+# Start everything via script
+CMD ["/bin/bash", "/start.sh"]
